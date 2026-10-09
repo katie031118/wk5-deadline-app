@@ -38,7 +38,7 @@ button:disabled { cursor: not-allowed; }
   display: flex; align-items: center; justify-content: center;
   gap: 32px; padding: 16px;
 }
-body.mode-participant { overflow: hidden; }
+@media (min-width: 761px) { body.mode-participant { overflow: hidden; } }
 
 /* ---------- 모바일 프레임 (데스크톱 기준 390×844) ---------- */
 .frame {
@@ -170,7 +170,17 @@ h1.title { font-weight: 800; letter-spacing: -0.02em; }
 
 /* ---------- 이탈 앱(피드) 시뮬레이션 ---------- */
 #s3 { padding-top: 0; }
-#s3 .chip-wrap { padding: calc(var(--sb) + 3px) 20px 6px; flex: none; }
+#s3 .chip-wrap { padding: calc(var(--sb) + 4px) 10px 4px; flex: none; }
+/* 참가자 화면 상단 내비게이션: S2·S3 공통 위치·크기 */
+.navbar { display: flex; align-items: center; gap: 4px; }
+.nav-back {
+  width: 44px; height: 44px; flex: none; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+}
+.nav-back svg { width: 24px; height: 24px; fill: none; stroke: var(--black); stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+#s2 .nav-back { cursor: pointer; }
+.done-note { text-align: center; font-size: 14px; color: var(--mid); margin-bottom: 10px; }
+.done-note[hidden] { display: none; }
 .chip {
   display: inline-flex; align-items: center;
   height: 28px; padding: 0 14px; border-radius: 14px;
@@ -201,7 +211,7 @@ h1.title { font-weight: 800; letter-spacing: -0.02em; }
 /* ---------- 외부 OTT 시뮬레이션 (정적 와이어프레임, 조작 요소 없음) ---------- */
 #s2 { padding-top: 0; }
 #s2 * { cursor: default; }
-#s2 .top { padding: calc(var(--sb) + 9px) 18px 11px; background: var(--faint); flex: none; }
+#s2 .top { padding: calc(var(--sb) + 4px) 10px 4px; background: var(--faint); flex: none; }
 .ott-body { flex: 1 1 auto; min-height: 0; overflow: hidden; display: flex; flex-direction: column; }
 .video { height: clamp(150px, 27cqh, 229px); background: #7d7d7d; position: relative; flex: none; }
 .video .play { position: absolute; left: 50%; top: 50%; width: 74px; height: 74px; margin: -48px 0 0 -37px; border-radius: 50%; background: #5d5d5d; display: flex; align-items: center; justify-content: center; }
@@ -291,6 +301,12 @@ h1.title { font-weight: 800; letter-spacing: -0.02em; }
 .controller .log .t { color: var(--mid); }
 .controller .log .tag { display: inline-block; padding: 0 3px; border: 1px solid #999; border-radius: 2px; font-size: 10px; }
 
+/* ---------- PROTOTYPE TEST 패널 (기본 URL, 프레임 바깥) ---------- */
+.ptest .pt-situation { margin-top: 12px; font-size: 14px; font-weight: 700; }
+.ptest .pt-hint { margin-top: 4px; font-size: 12px; line-height: 1.5; color: var(--mid); }
+.ptest button { margin-top: 10px; }
+.ptest [hidden] { display: none; }
+
 /* ---------- 작은 화면 ---------- */
 @media (max-width: 430px) {
   :root { --sb: env(safe-area-inset-top, 0px); }   /* 실제 폰에는 OS 상태바가 있으므로 모의 상태바·홈바 제거 */
@@ -307,7 +323,15 @@ h1.title { font-weight: 800; letter-spacing: -0.02em; }
   .activity-box .thumb { width: 52px; height: 52px; }
 }
 
-/* 좁은 화면에서는 TEST CONTROLLER 를 숨긴다 */
+/* 좁은 화면: 연구자 컨트롤러는 숨기고, PROTOTYPE TEST 패널은 프레임 아래에 둔다.
+   프레임 크기·구조는 그대로 두고 페이지가 세로로 스크롤된다. */
 @media (max-width: 760px) {
-  .controller { display: none; }
+  .controller:not(.ptest) { display: none; }
+  body { overflow-y: auto; }
+  .stage { height: auto; min-height: 100vh; min-height: 100dvh; flex-direction: column; justify-content: flex-start; gap: 16px; }
+  .ptest { width: calc(100% - 32px); max-width: 390px; max-height: none; overflow: visible; margin: 0 auto 24px; padding-bottom: calc(14px + env(safe-area-inset-bottom, 0px)); }
+}
+@media (max-width: 430px) {
+  .stage { gap: 0; }
+  .ptest { margin-top: 16px; }
 }
