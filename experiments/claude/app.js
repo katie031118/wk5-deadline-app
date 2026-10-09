@@ -281,14 +281,28 @@
   };
 
   /* ---------- 시작 ---------- */
+  var restored = !!state.sessionId;
+  var autoStarted = false;
+  if (!restored) {
+    /* 처음 열면 빈 대기 화면 없이 바로 목표 화면. 세션은 자동 생성(연구자 모드는 테스트, 참가자 URL은 실험 기록). */
+    state = defaultState();
+    state.sessionId = Logger.nextSessionId();
+    state.recordType = viewMode === 'researcher' ? 'test' : 'study';
+    state.screen = 'goal';
+    autoStarted = true;
+  }
   Store.set(state);
   render();
   log('page_loaded', 'system', {
-    restored: !!state.sessionId,
+    restored: restored,
     screen: state.screen,
     sheetOpen: state.sheetOpen,
     interventionShown: state.interventionShown
   });
+  if (autoStarted) {
+    log('prototype_session_start', 'system', { recordType: state.recordType, auto: true, trigger: 'first_open' });
+    log('goal_screen_shown', 'system', { trigger: 'first_open' });
+  }
 
   if (viewMode === 'researcher') {
     var s = document.createElement('script');
