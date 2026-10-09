@@ -1,12 +1,14 @@
 /* 퇴근길 목표 PoC — 모든 외부 앱 전환·이탈·하차는 웹 내부 시뮬레이션
  *
  * 모드
- *  - 참가자(기본): 프레임만 표시. 연구자 조작·단축키·로그 UI 없음.
+ *  - 참가자(기본): 혼자 체험용. 프레임 + 프레임 바깥의 PROTOTYPE TEST 패널(prototype-test.js).
+ *    프레임 안에는 테스트 버튼 없음. 상태값·로그·단계 이동·단축키 없음.
  *  - 연구자(?mode=researcher): researcher.js 를 불러와 TEST CONTROLLER 를 추가.
  *
  * 이벤트 source
  *  - participant: 프레임 안에서의 조작
  *  - researcher : 연구자 패널/단축키 조작 (이탈·하차 등 시뮬레이션은 simulated:true)
+ *  - prototype_test: 기본 URL 의 PROTOTYPE TEST 패널 조작 (항상 simulated:true)
  *  - system     : 규칙에 따라 화면이 표시된 사실(개입 표시, 회고 노출 등)
  *
  * 진행 상태(Store)는 localStorage 에 저장되어 새로고침해도 같은 이동의 개입 횟수가 초기화되지 않는다.
@@ -31,6 +33,7 @@
   var returnBtn = $('return-btn');
   var continueBtn = $('continue-btn');
   var doneBtn = $('done-btn');
+  var doneNote = $('done-note');
   var scaleSet = $('scale');
   var radios = Array.prototype.slice.call(document.querySelectorAll('#scale input[type="radio"]'));
 
@@ -47,6 +50,7 @@
       screen: 'standby',           // standby | goal | ott | feed | reflection
       sheetOpen: false,
       sheetPreview: false,         // true = 연구자 단계 이동으로 연 04 미리보기 (실제 개입 아님)
+      startClicks: 0,              // [해리포터 시작] 클릭 횟수 (뒤로 간 뒤 재시작 구분용)
       interventionShown: false,    // 이동 1회당 최대 1회 개입 (새로고침으로 초기화되지 않음)
       interventionResponse: null,  // null | 'return' | 'continue' | 'aborted_by_researcher'
       rating: null,
@@ -79,7 +83,10 @@
       viewMode: viewMode
     };
   }
-  function log(event, source, extra) { return Logger.log(event, ctx(source), extra); }
+  function log(event, source, extra) {
+    if (source === 'prototype_test') extra = Object.assign({}, extra, { simulated: true });
+    return Logger.log(event, ctx(source), extra);
+  }
   function flush(queue) { queue.forEach(function (q) { log(q[0], q[1], q[2]); }); }
 
   /* ---------- 렌더 ---------- */
@@ -97,8 +104,10 @@
 
     radios.forEach(function (r) { r.checked = state.rating === Number(r.value); });
     scaleSet.disabled = state.completed;
-    doneBtn.disabled = state.rating === null || state.completed;
-    doneBtn.textContent = state.completed ? '완료됨' : '완료';
+    /* 완료 후에는 같은 버튼이 [처음으로 돌아가기]가 되어 화면에 갇히지 않는다 (점수·제출은 잠김) */
+    doneBtn.disabled = !state.completed && state.rating === null;
+    doneBtn.textContent = state.completed ? '처음으로 돌아가기' : '완료';
+    doneNote.hidden = !state.completed;
 
     /* 초점 이동: 개입이 열리면 시트 안으로, 닫히면 이동한 화면의 적절한 위치로 */
     var screenChanged = shown.screen !== null && shown.screen !== sc;
@@ -119,10 +128,27 @@
     load();
     if (state.screen !== 'goal') return;
     state.screen = 'ott';
+    state.startClicks = (state.startClicks || 0) + 1;
+    var attempt = state.startClicks;
     commit();
     flush([
-      ['goal_start_clicked', 'participant', null],
+      ['goal_start_clicked', 'participant', { attempt: attempt }],
       ['screen_changed', 'participant', { from: 'goal', to: 'ott', via: 'goal_start_clicked' }]
+    ]);
+  }
+
+  /* 참가자 뒤로가기: S2→S1, S3→S2. 개입 시트가 열려 있으면(배경 inert) 시트 선택이 우선. */
+  function participantBack() {
+    load();
+    var from = state.screen, to = null;
+    if (from === 'ott') to = 'goal';
+    else if (from === 'feed' && !state.sheetOpen) to = 'ott';
+    if (!to) return;
+    state.screen = to;
+    commit();
+    flush([
+      ['participant_back', 'participant', { from: from, to: to }],
+      ['screen_changed', 'participant', { from: from, to: to, via: 'participant_back' }]
     ]);
   }
 
@@ -174,12 +200,34 @@
     flush([['reflection_rating_selected', 'participant', { rating: value, previousRating: prev }]]);
   }
 
+  var completedAt = 0;
   function completeReflection() {
     load();
-    if (state.screen !== 'reflection' || state.rating === null || state.completed) return;
+    if (state.screen !== 'reflection') return;
+    if (state.completed) { restartTrip(); return; }
+    if (state.rating === null) return;
     state.completed = true;
+    completedAt = Date.now();
     commit();
     flush([['reflection_completed', 'participant', { rating: state.rating }]]);
+  }
+
+  /* 완료 후 [처음으로 돌아가기]: 새 세션으로 S1부터. 기존 세션의 점수·제출은 그대로 보존된다. */
+  function restartTrip() {
+    if (Date.now() - completedAt < 700) return; // 완료 직후 연타 방지
+    load();
+    if (state.screen !== 'reflection' || !state.completed) return;
+    log('participant_restart', 'participant', { fromSession: state.sessionId });
+    var next = defaultState();
+    next.sessionId = Logger.nextSessionId();
+    next.recordType = state.recordType;
+    next.screen = 'goal';
+    state = next;
+    commit();
+    flush([
+      ['prototype_session_start', 'system', { recordType: next.recordType, trigger: 'participant_restart' }],
+      ['goal_screen_shown', 'system', { trigger: 'participant_restart' }]
+    ]);
   }
 
   /* ---------- 연구자 조작 (연구자 모드에서만 호출됨) ---------- */
@@ -193,9 +241,18 @@
       next.sessionId = Logger.nextSessionId();
       next.recordType = type;
       var toGoal = !!(opts && opts.toGoal);
+      var src = (opts && opts.source) || 'researcher';
       if (toGoal) next.screen = 'goal';
       state = next;
       commit();
+      if (src === 'prototype_test') {
+        /* PROTOTYPE TEST 패널의 [처음부터 다시 체험]: 새 세션으로 01 목표 확인 */
+        flush([
+          ['prototype_session_start', src, { recordType: type, via: 'prototype_test_restart' }],
+          ['goal_screen_shown', 'system', { trigger: 'prototype_test_restart' }]
+        ]);
+        return;
+      }
       var q = [['prototype_session_start', 'researcher', { recordType: type, via: toGoal ? 'home' : 'new_trip' }]];
       if (toGoal) {
         q.push(['researcher_nav', 'researcher', { from: null, to: 1, method: 'home', preview: false }]);
@@ -251,13 +308,14 @@
     next: function () { researcherActions.goto(stepOf(load()) + 1, 'next'); },
 
     /* 이탈 앱 진입 시뮬레이션 — 실제 앱 감지가 아님. 실제 규칙(첫 이탈에만 개입) 적용. */
-    drift: function () {
+    drift: function (source) {
       load();
       if (state.screen !== 'ott') return;
+      var src = source || 'researcher';
       var shownBefore = state.interventionShown;
       var q = [
-        ['drift_app_entered', 'researcher', { simulated: true, detection: 'researcher_simulation', interventionShownBefore: shownBefore }],
-        ['screen_changed', 'researcher', { from: 'ott', to: 'feed', via: 'drift_app_entered' }]
+        ['drift_app_entered', src, { simulated: true, detection: src + '_simulation', interventionShownBefore: shownBefore }],
+        ['screen_changed', src, { from: 'ott', to: 'feed', via: 'drift_app_entered' }]
       ];
       state.screen = 'feed';
       if (!shownBefore) {
@@ -271,13 +329,16 @@
     },
 
     /* 하차 시뮬레이션. 개입 응답 전이면 참가자 선택과 구별해 별도 기록한다. */
-    exit: function (reason) {
+    exit: function (reason, source) {
       load();
       if (state.screen !== 'ott' && state.screen !== 'feed') return;
+      var src = source || 'researcher';
+      /* 기본 URL 패널은 개입을 경험한 뒤(응답 완료)에만 하차를 발생시킬 수 있다 */
+      if (src === 'prototype_test' && (!state.interventionShown || state.sheetOpen)) return;
       var from = state.screen;
       var open = state.sheetOpen;
       var live = open && !state.sheetPreview;
-      var q = [['trip_exit_triggered', 'researcher', { simulated: true, detection: 'researcher_simulation', fromScreen: from, interventionOpen: live }]];
+      var q = [['trip_exit_triggered', src, { simulated: true, detection: src + '_simulation', fromScreen: from, interventionOpen: live }]];
       if (live) {
         q.push(['intervention_aborted_by_researcher', 'researcher', {
           reason: reason || 'unspecified',
@@ -290,7 +351,7 @@
       state.sheetPreview = false;
       state.exitFrom = from;
       state.screen = 'reflection';
-      q.push(['screen_changed', 'researcher', { from: from, to: 'reflection', via: 'trip_exit_triggered' }]);
+      q.push(['screen_changed', src, { from: from, to: 'reflection', via: 'trip_exit_triggered' }]);
       q.push(['reflection_shown', 'system', { trigger: 'trip_exit_triggered' }]);
       commit();
       flush(q);
@@ -299,6 +360,8 @@
 
   /* ---------- 이벤트 바인딩 ---------- */
   $('start-btn').addEventListener('click', goalStartClicked);
+  $('back-ott').addEventListener('click', participantBack);
+  $('back-feed').addEventListener('click', participantBack);
   returnBtn.addEventListener('click', interventionReturn);
   continueBtn.addEventListener('click', interventionContinue);
   radios.forEach(function (r) {
@@ -360,9 +423,8 @@
     log('goal_screen_shown', 'system', { trigger: 'first_open' });
   }
 
-  if (viewMode === 'researcher') {
-    var s = document.createElement('script');
-    s.src = 'researcher.js';
-    document.body.appendChild(s);
-  }
+  /* 연구자 모드: 전체 TEST CONTROLLER / 기본 URL: 프레임 바깥 PROTOTYPE TEST 패널 */
+  var panelScript = document.createElement('script');
+  panelScript.src = viewMode === 'researcher' ? 'researcher.js' : 'prototype-test.js';
+  document.body.appendChild(panelScript);
 })();
