@@ -42,7 +42,7 @@
 
     <!-- S2 외부 OTT 앱 (정적 시뮬레이션 — 조작 가능한 요소 없음) -->
     <section class="screen" id="s2" data-screen="ott" tabindex="-1" aria-label="외부 OTT 앱 시뮬레이션, 해리포터 시청 화면">
-      <div class="top" aria-hidden="true"><span class="chip">외부 OTT 앱</span></div>
+      <div class="top navbar"><button class="nav-back" id="back-ott" type="button" aria-label="뒤로 가기"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 5l-7 7 7 7"/></svg></button><span class="chip" aria-hidden="true">외부 OTT 앱</span></div>
       <div class="ott-body" aria-hidden="true">
         <div class="video">
           <div class="play"><svg viewBox="0 0 24 24"><path d="M6 3l15 9-15 9z"/></svg></div>
@@ -72,7 +72,7 @@
 
     <!-- S3 등록한 이탈 앱 (일반 피드 구조 시뮬레이션, 내부 세로 스크롤) -->
     <section class="screen" id="s3" data-screen="feed" tabindex="-1" aria-label="등록한 이탈 앱 시뮬레이션, 피드 화면">
-      <div class="chip-wrap" aria-hidden="true"><span class="chip">등록한 이탈 앱</span></div>
+      <div class="chip-wrap navbar"><button class="nav-back" id="back-feed" type="button" aria-label="뒤로 가기"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 5l-7 7 7 7"/></svg></button><span class="chip" aria-hidden="true">등록한 이탈 앱</span></div>
       <div class="feed" id="feed" tabindex="0" role="region" aria-label="피드 (위아래로 스크롤)"></div>
     </section>
 
@@ -102,6 +102,7 @@
         </div>
       </div>
       <div class="bottom">
+        <p class="done-note" id="done-note" role="status" hidden>완료했어요. 응답이 저장되었어요.</p>
         <button class="btn-primary" id="done-btn" type="button" disabled>완료</button>
       </div>
     </section>
