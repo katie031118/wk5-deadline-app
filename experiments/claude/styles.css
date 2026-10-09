@@ -3,6 +3,9 @@
   --dark: #5a5a5a;
   --mid: #666;          /* 의미 있는 보조 문구 (흰 배경 대비 5.7:1) */
   --line: #d4d4d4;
+  --line-strong: #bdbdbd;
+  --r: 12px;            /* 버튼·카드 모서리 통일 */
+  --pad: 22px;          /* 프레임 좌우 여백 통일 */
   --soft: #e6e6e6;
   --faint: #f5f5f5;
   --white: #fff;
@@ -80,34 +83,34 @@ body.mode-participant { overflow: hidden; }
 
 .appbar {
   height: 38px; flex: none;
-  padding: 0 22px;
+  padding: 0 var(--pad);
   display: flex; align-items: center;
   font-size: 16px;
   border-bottom: 1px solid var(--line);
 }
 
 /* 중간 영역은 남는 높이만큼 줄어들고, 극단적으로 낮을 때만 내부 스크롤 */
-.content { padding: 0 22px; flex: 1 1 auto; min-height: 0; display: flex; flex-direction: column; overflow-y: auto; }
+.content { padding: 0 var(--pad); flex: 1 1 auto; min-height: 0; display: flex; flex-direction: column; overflow-y: auto; }
 .bottom {
   flex: none; margin-top: auto;
-  padding: 8px 22px calc(clamp(14px, 6cqh, 50px) + env(safe-area-inset-bottom, 0px));
+  padding: 8px var(--pad) calc(clamp(14px, 6cqh, 50px) + env(safe-area-inset-bottom, 0px));
 }
 
 h1.title { font-weight: 800; letter-spacing: -0.02em; }
 
 .btn-primary {
-  width: 100%; min-height: 48px; border-radius: 12px;
+  width: 100%; min-height: 48px; border-radius: var(--r);
   background: var(--dark); color: var(--white);
   font-size: 18px; font-weight: 700;
 }
 .btn-secondary {
-  width: 100%; min-height: 48px; border-radius: 12px;
-  background: var(--faint); border: 1px solid #bdbdbd;
+  width: 100%; min-height: 48px; border-radius: var(--r);
+  background: var(--faint); border: 1px solid var(--line-strong);
   font-size: 16px; font-weight: 700;
 }
 .btn-text {
   display: block; width: 100%; min-height: 44px; margin-top: clamp(4px, 1.7cqh, 14px);
-  font-size: 18px; color: var(--mid);
+  font-size: 16px; color: var(--mid);
 }
 .btn-text:disabled { color: #9c9c9c; }
 
@@ -128,10 +131,10 @@ h1.title { font-weight: 800; letter-spacing: -0.02em; }
   margin-top: clamp(14px, 3.3cqh, 28px);
   display: flex; align-items: center; gap: 20px;
   padding: 22px 20px;
-  border: 1px solid var(--line); border-radius: 14px; background: #fcfcfc;
+  border: 1px solid var(--line); border-radius: var(--r); background: #fcfcfc;
 }
 #s1 .activity-name { font-size: 23px; }
-#s1 .meta { margin-top: 12px; font-size: 17px; color: var(--mid); }
+#s1 .meta { margin-top: 12px; font-size: 16px; color: var(--mid); }
 
 /* ---------- S5 ---------- */
 #s5 .title { margin-top: clamp(14px, 6.2cqh, 52px); font-size: clamp(26px, 8.4cqw, 33px); line-height: 1.2; }
@@ -142,7 +145,7 @@ h1.title { font-weight: 800; letter-spacing: -0.02em; }
 .rate span {
   display: flex; align-items: center; justify-content: center;
   width: clamp(46px, 14cqw, 54px); height: clamp(46px, 14cqw, 54px); border-radius: 50%;
-  border: 1px solid #bdbdbd; background: var(--faint);
+  border: 1px solid var(--line-strong); background: var(--faint);
   font-size: 24px; color: var(--dark);
 }
 .rate input:checked + span {
@@ -157,7 +160,7 @@ h1.title { font-weight: 800; letter-spacing: -0.02em; }
 .divider { flex: none; height: 1px; background: var(--line); margin-top: clamp(12px, 3cqh, 26px); }
 .activity-box {
   flex: none; margin-top: clamp(12px, 3cqh, 26px);
-  border: 1px solid var(--line); border-radius: 14px; background: #fcfcfc; padding: 16px 18px 18px;
+  border: 1px solid var(--line); border-radius: var(--r); background: #fcfcfc; padding: 16px 18px 18px;
 }
 .activity-box .lbl { font-size: 15px; color: var(--mid); }
 .activity-box .row { display: flex; align-items: center; gap: 18px; margin-top: 10px; }
@@ -227,7 +230,7 @@ h1.title { font-weight: 800; letter-spacing: -0.02em; }
   position: absolute; left: 0; right: 0; bottom: 0;
   background: var(--white);
   border-radius: 28px 28px 44px 44px;
-  padding: 34px 20px calc(clamp(24px, 6cqh, 50px) + env(safe-area-inset-bottom, 0px));
+  padding: 34px var(--pad) calc(clamp(24px, 6cqh, 50px) + env(safe-area-inset-bottom, 0px));
   text-align: center;
   z-index: 11;
   transform: translateY(100%);
@@ -244,37 +247,46 @@ h1.title { font-weight: 800; letter-spacing: -0.02em; }
   .sheet { transition: none; }
 }
 
-/* ---------- 연구자 컨트롤러 (researcher.js 가 ?mode=researcher 일 때만 생성) ---------- */
+/* ---------- TEST CONTROLLER (researcher.js 가 ?mode=researcher 일 때만 생성) ---------- */
 .controller {
-  width: 320px; flex: none;
+  width: 260px; flex: none;
   max-height: 844px; max-height: calc(100vh - 32px); max-height: calc(100dvh - 32px);
   overflow-y: auto; overscroll-behavior: contain;
   border: 2px dashed #777; background: #fafafa;
   padding: 14px; font-size: 13px; word-break: normal;
 }
-.controller .badge { display: inline-block; background: var(--black); color: var(--white); font-size: 11px; font-weight: 700; letter-spacing: .06em; padding: 3px 8px; border-radius: 3px; }
-.controller h2 { font-size: 15px; margin: 8px 0 4px; }
-.controller p.note { font-size: 12px; color: var(--mid); line-height: 1.5; margin-top: 6px; }
-.controller dl.state { margin-top: 10px; font: 12px/1.6 ui-monospace, Menlo, monospace; display: grid; grid-template-columns: auto 1fr; gap: 0 10px; color: #333; }
-.controller dt { color: var(--mid); }
-.controller .c-group { border: 1px solid #ccc; border-radius: 6px; padding: 8px 10px 10px; margin-top: 10px; min-width: 0; }
-.controller legend { font-size: 12px; font-weight: 700; padding: 0 4px; }
-.controller .c-group label { display: block; font-size: 12px; line-height: 1.8; }
+.controller .badge { display: inline-block; background: var(--black); color: var(--white); font-size: 11px; font-weight: 700; letter-spacing: .08em; padding: 3px 8px; border-radius: 3px; }
+.controller h2 { font-size: 12px; font-weight: 700; margin: 14px 0 6px; padding-top: 10px; border-top: 1px solid var(--line-strong); }
+.controller p.note { font-size: 11px; color: var(--mid); line-height: 1.5; margin-top: 6px; }
+.controller .sess { margin-top: 10px; font: 12px/1.4 ui-monospace, Menlo, monospace; color: #333; }
+.controller .c-rec { display: flex; align-items: center; gap: 10px; margin-top: 6px; font-size: 12px; }
+.controller .c-rec span { color: var(--mid); }
+.controller .c-rec label { display: flex; align-items: center; gap: 4px; min-height: 28px; }
+.controller .count { margin-top: 10px; font-size: 12px; font-weight: 700; }
+.controller ol.steps { list-style: none; display: flex; flex-direction: column; gap: 4px; }
 .controller button, .controller select {
-  display: block; width: 100%; min-height: 44px; margin-top: 6px;
+  display: block; width: 100%; min-height: 44px;
   border: 1px solid #888; border-radius: 6px; background: var(--white);
-  font-family: inherit; font-size: 13px; font-weight: 600;
+  font-family: inherit; font-size: 13px; font-weight: 600; text-align: center;
 }
+.controller button + button, .controller select, .controller .c-row + button, .controller button + .c-reason-label { margin-top: 6px; }
+.controller .step { text-align: left; padding: 0 12px; font-weight: 500; }
+.controller .step b { display: inline-block; width: 24px; font-family: ui-monospace, Menlo, monospace; }
+.controller .step.on { background: var(--black); border-color: var(--black); color: var(--white); font-weight: 700; }
+.controller .step.on:disabled { opacity: 1; }
 .controller select { font-weight: 400; padding: 0 6px; min-height: 36px; }
 .controller button:disabled, .controller select:disabled { opacity: .4; cursor: not-allowed; }
-.controller .c-row { display: flex; gap: 6px; }
-.controller .c-row button { flex: 1; }
+.controller .c-row { display: flex; gap: 6px; margin-top: 8px; }
+.controller .c-row button { flex: 1; margin-top: 0; }
+.controller .c-reason-label { display: block; font-size: 11px; color: var(--mid); margin-top: 8px; }
+.controller [hidden] { display: none; }
 .controller .danger { border-color: #333; }
+.controller .c-logbox { margin-top: 14px; padding-top: 10px; border-top: 1px solid var(--line-strong); }
+.controller summary { cursor: pointer; font-size: 12px; font-weight: 700; min-height: 28px; }
+.controller .c-cur { display: block; font-size: 12px; margin-top: 6px; }
 .controller .c-confirm { margin-top: 8px; padding: 8px; border: 2px solid var(--black); background: var(--white); font-size: 12px; line-height: 1.5; }
-.controller .c-confirm[hidden] { display: none; }
 .controller .tz { font-size: 11px; color: var(--mid); margin-top: 8px; line-height: 1.5; }
-.controller .log { margin-top: 6px; max-height: 220px; overflow: auto; overscroll-behavior: contain; border: 1px solid #ccc; background: var(--white); font: 11px/1.5 ui-monospace, Menlo, monospace; padding: 4px 6px; word-break: break-all; }
-.controller .log[hidden] { display: none; }
+.controller .log { margin-top: 6px; max-height: 200px; overflow: auto; overscroll-behavior: contain; border: 1px solid #ccc; background: var(--white); font: 11px/1.5 ui-monospace, Menlo, monospace; padding: 4px 6px; word-break: break-all; }
 .controller .log div { border-bottom: 1px dotted #ddd; padding: 2px 0; }
 .controller .log .t { color: var(--mid); }
 .controller .log .tag { display: inline-block; padding: 0 3px; border: 1px solid #999; border-radius: 2px; font-size: 10px; }
@@ -295,9 +307,7 @@ h1.title { font-weight: 800; letter-spacing: -0.02em; }
   .activity-box .thumb { width: 52px; height: 52px; }
 }
 
-/* 연구자 모드: 좁은 화면에서는 컨트롤러를 프레임 아래에 둔다 */
+/* 좁은 화면에서는 TEST CONTROLLER 를 숨긴다 */
 @media (max-width: 760px) {
-  body.mode-researcher { overflow-y: auto; }
-  body.mode-researcher .stage { height: auto; min-height: 100dvh; flex-direction: column; justify-content: flex-start; padding: 0 0 24px; gap: 16px; }
-  body.mode-researcher .controller { width: calc(100% - 32px); max-width: 390px; max-height: none; overflow: visible; }
+  .controller { display: none; }
 }
