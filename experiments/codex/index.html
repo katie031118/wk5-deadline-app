@@ -1,0 +1,120 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#ffffff">
+  <title>퇴근길 · 연구용 프로토타입</title>
+  <link rel="icon" href="data:,">
+  <link rel="stylesheet" href="./styles.css">
+  <script src="./logger.js" defer></script>
+  <script src="./app.js" defer></script>
+</head>
+<body>
+  <svg class="svg-definitions" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+    <defs>
+      <symbol id="icon-play" viewBox="0 0 24 24"><path d="m8 4 12 8-12 8Z" fill="currentColor" stroke="none"/></symbol>
+      <symbol id="icon-pause" viewBox="0 0 24 24"><path d="M8 5v14M16 5v14" stroke-width="5"/></symbol>
+      <symbol id="icon-picture" viewBox="0 0 80 60"><circle cx="62" cy="12" r="9" fill="currentColor"/><path d="M3 53 27 19a3 3 0 0 1 5 0l16 23 8-12a3 3 0 0 1 5 0l16 23q2 4-3 4H7q-6 0-4-4" fill="currentColor"/></symbol>
+      <symbol id="icon-heart" viewBox="0 0 24 24"><path d="M12 21 3 12C-3 4 6-1 12 6c6-7 15-2 9 6Z"/></symbol>
+      <symbol id="icon-comment" viewBox="0 0 24 24"><path d="M21 16a10 10 0 1 0-5 5l6 1Z"/></symbol>
+      <symbol id="icon-share" viewBox="0 0 24 24"><path d="m2 3 21-1-9 21-3-11Zm9 9L23 2"/></symbol>
+      <symbol id="icon-bookmark" viewBox="0 0 24 24"><path d="M4 2h16v21l-8-6-8 6Z"/></symbol>
+      <symbol id="icon-plus" viewBox="0 0 24 24"><path d="M12 2v20M2 12h20"/></symbol>
+      <symbol id="icon-like" viewBox="0 0 24 24"><path d="M7 10v12H3V10Zm0 11h11q2 0 2-2l2-8q0-2-2-2h-6l1-5q0-4-3-2l-5 8Z"/></symbol>
+      <symbol id="icon-more" viewBox="0 0 24 24"><g fill="currentColor" stroke="none"><circle cx="4" cy="12" r="1.8"/><circle cx="12" cy="12" r="1.8"/><circle cx="20" cy="12" r="1.8"/></g></symbol>
+    </defs>
+  </svg>
+  <div class="workspace">
+    <div class="phone" id="phone" aria-label="퇴근길 모바일 프로토타입">
+      <div class="status-bar" aria-hidden="true">
+        <span>9:41</span>
+        <svg viewBox="0 0 72 18"><g fill="currentColor"><rect x="0" y="11" width="3" height="6" rx="1"/><rect x="5" y="8" width="3" height="9" rx="1"/><rect x="10" y="4" width="3" height="13" rx="1"/><rect x="15" y="1" width="3" height="16" rx="1"/></g><g fill="none" stroke="currentColor" stroke-width="2.5"><path d="M25 5q9-8 18 0M28 9q6-5 12 0M32 13q2-2 4 0"/><rect x="49" y="3" width="20" height="12" rx="3" stroke-width="1"/></g><rect x="51" y="5" width="16" height="8" rx="1"/><path d="M71 7v4" stroke="currentColor" stroke-width="2"/></svg>
+      </div>
+      <main id="screens">
+        <section class="screen goal-screen" id="goal-screen" aria-labelledby="goal-title">
+          <header class="app-header">퇴근길</header>
+          <div class="goal-body">
+            <h1 id="goal-title" tabindex="-1">오늘 퇴근길 목표</h1>
+            <div class="activity-card goal-card">
+              <span class="activity-thumbnail" aria-hidden="true"><svg class="icon"><use href="#icon-play"/></svg></span>
+              <strong>해리포터 이어보기</strong>
+            </div>
+            <p class="commute-description">지하철 약 40분 · 환승 1회</p>
+            <div class="goal-actions">
+              <button class="button primary" id="start-goal">해리포터 시작</button>
+              <button class="text-button" id="other-activity">다른 활동</button>
+              <p class="activity-notice" id="activity-notice" role="status"></p>
+            </div>
+          </div>
+        </section>
+        <section class="screen ott-screen" id="ott-screen" aria-labelledby="ott-title" hidden>
+          <header class="external-header"><h1 class="app-tag" id="ott-title" tabindex="-1">외부 OTT 앱</h1></header>
+          <div class="video-placeholder">
+            <button class="play-button" id="toggle-play" aria-label="모의 재생 일시정지" aria-pressed="true"><svg class="icon"><use id="play-symbol" href="#icon-pause"/></svg></button>
+            <div class="video-track" aria-hidden="true"><span></span><i></i></div>
+          </div>
+          <div class="ott-details">
+            <h2>해리포터</h2>
+            <div class="metadata skeleton" aria-hidden="true"><span></span><span></span></div>
+            <div class="ott-tools" aria-hidden="true"><svg class="icon"><use href="#icon-plus"/></svg><svg class="icon"><use href="#icon-like"/></svg><svg class="icon dislike"><use href="#icon-like"/></svg><svg class="icon more"><use href="#icon-more"/></svg></div>
+            <div class="description skeleton" aria-hidden="true"><span></span><span></span><span></span></div>
+            <div class="recommendations" aria-hidden="true"><div class="skeleton"><span></span></div><div class="thumbnail-row"><div><i></i><span></span><span></span></div><div><i></i><span></span><span></span></div><div><i></i><span></span><span></span></div></div></div>
+          </div>
+        </section>
+        <section class="screen feed-screen" id="feed-screen" aria-labelledby="feed-title" hidden>
+          <header class="external-header"><h1 class="app-tag" id="feed-title" tabindex="-1">등록한 이탈 앱</h1></header>
+          <div class="feed-posts" id="feed-posts" tabindex="0" aria-label="소셜 피드"></div>
+        </section>
+        <section class="screen reflection-screen" id="reflection-screen" aria-labelledby="reflection-title" hidden>
+          <header class="app-header">오늘 퇴근길</header>
+          <div class="reflection-body">
+            <h1 id="reflection-title" tabindex="-1">오늘 이동시간,<br>원했던 방식에<br>가깝게 보냈나요?</h1>
+            <fieldset class="rating-group">
+              <legend class="sr-only">원했던 방식에 가깝게 보낸 정도</legend>
+              <div class="rating-options">
+                <label><input type="radio" name="rating" value="1"><span>1</span></label>
+                <label><input type="radio" name="rating" value="2"><span>2</span></label>
+                <label><input type="radio" name="rating" value="3"><span>3</span></label>
+                <label><input type="radio" name="rating" value="4"><span>4</span></label>
+                <label><input type="radio" name="rating" value="5"><span>5</span></label>
+              </div>
+              <div class="rating-labels"><span>전혀 아니에요</span><span>매우 그래요</span></div>
+            </fieldset>
+            <div class="activity-card reflection-card"><p>오늘 선택한 활동</p><div><span class="activity-thumbnail" aria-hidden="true"><svg class="icon"><use href="#icon-play"/></svg></span><strong>해리포터 이어보기</strong></div></div>
+            <div class="reflection-actions"><p id="completion-notice" role="status"></p><button class="button primary" id="complete-reflection" disabled>완료</button></div>
+          </div>
+        </section>
+      </main>
+      <div class="intervention-layer" id="intervention-layer" hidden>
+        <section class="bottom-sheet" id="intervention" role="dialog" aria-modal="true" aria-labelledby="intervention-title" aria-describedby="intervention-copy" tabindex="-1">
+          <div class="sheet-handle" aria-hidden="true"></div>
+          <h2 id="intervention-title">오늘 퇴근길 목표</h2>
+          <p id="intervention-copy">오늘 퇴근길엔<br>해리포터를 보기로 했어요.</p>
+          <button class="button primary" id="return-goal">해리포터로</button>
+          <button class="button secondary" id="continue-feed">계속 보기</button>
+        </section>
+      </div>
+      <div class="home-indicator" aria-hidden="true"></div>
+    </div>
+    <aside class="researcher" aria-labelledby="researcher-title">
+      <h2 id="researcher-title">연구자 컨트롤</h2>
+      <p>사용자 화면 밖의 테스트 도구입니다.<br>앱 전환과 하차 상황을 수동으로 재현합니다.</p>
+      <div class="researcher-buttons"><button id="reset-session">처음으로</button><button id="trigger-drift" disabled>이탈 상황 발생</button><button id="end-commute" disabled>하차 상황 발생</button></div>
+      <p class="research-state" id="research-state" role="status"></p>
+      <p id="storage-notice" role="alert" hidden>브라우저 저장 공간을 사용할 수 없습니다. 로그는 이 페이지를 닫기 전까지만 유지됩니다.</p>
+      <details class="research-notes"><summary>시뮬레이션 안내</summary><p>김나리 · 퇴근길<br>도보 4분 → 지하철 19분 → 환승 5분 → 지하철 21분 → 도보 7분</p><p>목표 활동 중에는 개입하지 않습니다. 메신저 사용은 개입 조건이 아닙니다. 등록한 이탈 앱 진입에만 이동 1회당 최대 1회 개입합니다.</p><p>영상·피드·재생 막대는 모형입니다. 실제 앱 연결, 위치 감지, 이동 감지, 시청 시간 분석은 없습니다.</p><p>처음으로: 새 세션을 시작합니다. 이전 이벤트 기록은 유지됩니다.</p></details>
+      <details class="event-log" open><summary>이벤트 로그 <span id="event-count">0</span></summary><p>현재 세션 · 기록은 이 브라우저에 저장됩니다.</p><ol id="event-list"></ol></details>
+    </aside>
+  </div>
+  <template id="feed-post-template">
+    <article class="feed-post" aria-label="예시 피드 게시물">
+      <div class="post-author" aria-hidden="true"><span class="avatar"></span><div class="skeleton"><span></span><span></span></div><svg class="icon more"><use href="#icon-more"/></svg></div>
+      <div class="post-image" aria-hidden="true"><svg><use href="#icon-picture"/></svg></div>
+      <div class="post-tools" aria-hidden="true"><svg class="icon"><use href="#icon-heart"/></svg><svg class="icon"><use href="#icon-comment"/></svg><svg class="icon"><use href="#icon-share"/></svg><svg class="icon more"><use href="#icon-bookmark"/></svg></div>
+      <div class="post-copy skeleton" aria-hidden="true"><span></span><span></span><span></span></div>
+    </article>
+  </template>
+  <noscript>이 프로토타입을 실행하려면 JavaScript를 켜 주세요.</noscript>
+</body>
+</html>
