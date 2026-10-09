@@ -8,10 +8,10 @@
 
 | 모드 | 주소 | 보이는 것 |
 |---|---|---|
-| 참가자 | `index.html` | 모바일 프레임만. 처음 열면 바로 목표 화면. 컨트롤러·상태값·로그·단축키 없음 |
+| 기본(혼자 체험) | `index.html` | 모바일 프레임 + 프레임 바깥의 `PROTOTYPE TEST` 패널. 처음 열면 바로 목표 화면. 상태값·로그·단계 이동·단축키 없음 |
 | 연구자 | `index.html?mode=researcher` | 프레임 + TEST CONTROLLER |
 
-- 참가자 화면 안에는 모드 전환 버튼이나 개발용 설명이 없습니다. 모드는 주소로만 구분합니다.
+- 모드는 이 두 가지뿐입니다. 프레임 안에는 모드 전환 버튼이나 테스트 버튼, 개발용 설명이 없습니다. 모드는 주소로만 구분합니다.
 - 같은 브라우저에서 참가자 창과 연구자 창을 각각 열면 진행 상태와 로그가 실시간으로 동기화됩니다(localStorage 이벤트).
   다른 기기 사이에서는 동기화되지 않습니다(서버 없음).
 - 연구자 모드는 연구자 본인이 쓰는 모드입니다. 참가자에게 이 주소를 알려주지 마세요.
@@ -19,6 +19,42 @@
 ## 처음 열었을 때
 
 저장된 진행 상태가 없으면 빈 화면 없이 바로 `오늘 퇴근길 목표` 화면이 열리고 세션이 자동 생성됩니다(`prototype_session_start`, `auto: true`). 참가자 URL은 `실험 기록`, 연구자 모드는 `테스트 기록`으로 시작합니다. 같은 브라우저에서 다시 열면 진행 상태가 복원됩니다.
+
+## 기본 URL: 링크 하나로 01→05 혼자 체험
+
+웹 프로토타입은 실제 앱 전환과 하차를 감지할 수 없으므로, 프레임 **바깥**의 `PROTOTYPE TEST` 패널이 그 상황을 대신 발생시킵니다. 패널에는 현재 상황과 "왜 눌러야 하는지" 설명이 표시됩니다. 모바일 폭에서도 프레임은 그대로(전체 화면)이고, 패널은 프레임 아래에 놓이며 페이지가 세로로 스크롤됩니다.
+
+| 단계 | 프레임 안(참가자) | PROTOTYPE TEST 패널 |
+|---|---|---|
+| 01 목표 확인 | [해리포터 시작] | 버튼 없음(상황 표시만) |
+| 02 OTT(개입 전) | 정적 화면. 타임라인을 눌러도 개입 없음 | **[이탈 앱 열기]** |
+| 03 이탈 앱(첫 진입) | 04 개입 시트가 자동으로 열림 | 버튼 없음("시트에서 선택") |
+| 04 목표 리마인드 | [해리포터로] → 02 복귀 / [피드 계속 보기] → 03 유지 | 버튼 없음 |
+| 02·03(개입 경험 후) | 03에서는 `←`로 02 복귀 | **[하차 상황]**(02에서는 [이탈 앱 열기]도 표시. 재이탈은 개입 없음) |
+| 05 회고 | 점수 선택 후 [완료] | 버튼 없음 |
+| 05 완료 후 | 완료 문구 + [처음으로 돌아가기] | **[처음부터 다시 체험]** |
+
+- 개입을 한 번도 경험하지 않았거나 시트가 열려 있는 동안에는 [하차 상황]이 나타나지 않고, 앱 쪽에서도 막혀 있습니다.
+- 로그: 패널 조작은 `source: prototype_test`, `simulated: true`, 참가자 화면 안 클릭은 `source: participant`입니다. 세션 유형은 기본 URL에서 `study`입니다(참가자 로그는 각자 브라우저의 localStorage에만 저장되며 서버로 모이지 않습니다).
+- 패널은 연구자 모드에서는 표시되지 않습니다.
+
+## 참가자 화면 내비게이션
+
+연구자 컨트롤러와 별개로 동작하며 참가자 이벤트(`source: participant`)로 기록됩니다.
+
+| 현재 | 조작 | 결과 |
+|---|---|---|
+| 02 OTT | 상단 왼쪽 `←` | 01 목표 확인 (`participant_back`) |
+| 03 이탈 피드 | 상단 왼쪽 `←` | 02 OTT (`participant_back`) |
+| 03 + 개입 시트 | — | `←` 불가(배경 비활성). 시트 두 버튼 선택이 우선 |
+| 05 회고(미완료) | — | 점수 선택 후 [완료]만 가능 |
+| 05 회고(완료) | `처음으로 돌아가기` | 새 세션으로 01 목표 확인. 기존 세션의 점수·제출은 보존 |
+
+- 뒤로 가도 이동당 개입 1회 기록(`interventionShown`)은 되돌아가지 않습니다.
+- 뒤로 간 뒤 다시 [해리포터 시작]을 누르면 `goal_start_clicked`의 `attempt`가 2, 3… 으로 늘어납니다(첫 클릭과 구분).
+- 완료 후 같은 버튼이 `처음으로 돌아가기`가 되고 "완료했어요. 응답이 저장되었어요." 문구가 나타납니다. 점수와 제출은 잠긴 채이며, 완료 직후 0.7초는 연타로 넘어가지 않도록 무시합니다.
+- 재시작하면 기존 세션에 `participant_restart`(participant), 새 세션에 `prototype_session_start`·`goal_screen_shown`(system, `trigger: participant_restart`)이 남고 기록 유형은 이전 세션과 같습니다.
+- 실제 참가자 기록과 테스트 이동의 구분: `sessionType`(test/study)과 `source`(participant=참가자 조작, researcher=연구자 패널 이동)로 구분합니다.
 
 ## TEST CONTROLLER (연구자 모드, 폭 260px, 760px 미만에서는 숨김)
 
@@ -69,6 +105,9 @@
 | `reflection_shown` | system | 회고 화면 노출 |
 | `reflection_rating_selected` | participant | 점수 선택(`rating`, `previousRating`) |
 | `reflection_completed` | participant | 제출 |
+| `prototype_session_start`(via `prototype_test_restart`) | prototype_test | 패널의 [처음부터 다시 체험]으로 새 세션 시작 |
+| `participant_back` | participant | 참가자 뒤로가기(`from`, `to`) |
+| `participant_restart` | participant | 완료 후 처음으로 돌아가기(`fromSession`) |
 | `researcher_nav` | researcher | 단계 이동(`from`/`to`/`method`/`preview`). 04 진입은 `preview: true` |
 | `intervention_preview_closed` | researcher | 04 미리보기 시트를 버튼으로 닫음(참가자 선택 아님) |
 | `log_exported` / `log_cleared` | researcher | 로그 내보내기 / 전체 삭제 |
