@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>퇴근길 목표 — Lo-fi PoC</title>
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<div class="stage" id="stage">
+
+  <!-- ================= 모바일 프레임 (참가자에게 보이는 화면) ================= -->
+  <main class="frame" id="frame">
+    <div class="statusbar" aria-hidden="true">
+      <span>9:41</span>
+      <span class="icons">
+        <svg viewBox="0 0 18 12"><rect x="0" y="8" width="3" height="4" rx="1"/><rect x="5" y="5.5" width="3" height="6.5" rx="1"/><rect x="10" y="3" width="3" height="9" rx="1"/><rect x="15" y="0" width="3" height="12" rx="1"/></svg>
+        <svg viewBox="0 0 17 12"><path d="M8.5 2.3c2.3 0 4.4.9 6 2.4l1.2-1.3A10.6 10.6 0 0 0 8.5.5C5.7.5 3.2 1.6 1.3 3.4l1.2 1.3a8.7 8.7 0 0 1 6-2.4zm0 3.6c1.3 0 2.500.5 3.400 1.300l1.200-1.300a7 7 0 0 0-9.200 0l1.200 1.300c.9-.8 2.100-1.300 3.400-1.300zm0 3.500L6.600 8l1.900 2.400L10.400 8z"/></svg>
+        <svg viewBox="0 0 28 13"><rect x=".5" y=".5" width="24" height="12" rx="3.5" fill="none" stroke="#111" opacity=".5"/><rect x="2" y="2" width="21" height="9" rx="2"/><rect x="26" y="4.5" width="1.8" height="4" rx=".9"/></svg>
+      </span>
+    </div>
+
+    <!-- S0 대기: 연구자가 과제를 시작하기 전까지 참가자에게 비어 있는 화면 -->
+    <section class="screen active" id="s0" data-screen="standby" tabindex="-1" aria-label="대기 중"></section>
+
+    <!-- S1 목표 확인 -->
+    <section class="screen" id="s1" data-screen="goal" tabindex="-1" aria-label="오늘 퇴근길 목표">
+      <header class="appbar">퇴근길</header>
+      <div class="content">
+        <h1 class="title">오늘 퇴근길 목표</h1>
+        <div class="activity-card">
+          <div class="thumb" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M6 3l15 9-15 9z"/></svg></div>
+          <strong class="activity-name"><span>해리포터</span> <span>이어보기</span></strong>
+        </div>
+        <p class="meta">지하철 약 40분 · 환승 1회</p>
+      </div>
+      <div class="bottom">
+        <button class="btn-primary" id="start-btn" type="button">해리포터 시작</button>
+        <button class="btn-text" id="other-btn" type="button" disabled aria-label="다른 활동 (이번 버전에서는 사용할 수 없음)">다른 활동</button>
+      </div>
+    </section>
+
+    <!-- S2 외부 OTT 앱 (정적 시뮬레이션 — 조작 가능한 요소 없음) -->
+    <section class="screen" id="s2" data-screen="ott" tabindex="-1" aria-label="외부 OTT 앱 시뮬레이션, 해리포터 시청 화면">
+      <div class="top" aria-hidden="true"><span class="chip">외부 OTT 앱</span></div>
+      <div class="ott-body" aria-hidden="true">
+        <div class="video">
+          <div class="play"><svg viewBox="0 0 24 24"><path d="M6 3l15 9-15 9z"/></svg></div>
+          <div class="progress"><i></i><b></b></div>
+        </div>
+        <div class="info">
+          <h2>해리포터</h2>
+          <div class="pills"><span class="bar" style="width:68px;background:#b5b5b5"></span><span class="bar" style="width:116px"></span></div>
+          <div class="ott-actions">
+            <svg viewBox="0 0 24 24"><path d="M12 4v16M4 12h16"/></svg>
+            <svg viewBox="0 0 24 24"><path d="M7 11v9H4v-9zM7 11l4-7c1.5 0 2.500 1 2 3l-.5 3H19c1 0 2 1 1.700 2.200l-1.500 6A2 2 0 0 1 17.300 20H7"/></svg>
+            <svg viewBox="0 0 24 24"><path d="M17 13V4h3v9zM17 13l-4 7c-1.500 0-2.500-1-2-3l.5-3H5c-1 0-2-1-1.700-2.200l1.500-6A2 2 0 0 1 6.700 4H17"/></svg>
+            <span class="spacer"></span>
+            <span class="dots">•••</span>
+          </div>
+          <div class="ott-text"><span class="bar w90"></span><span class="bar w70"></span><span class="bar w40"></span></div>
+          <div class="rail-title"></div>
+          <div class="rail">
+            <div class="card"><div class="img"></div><span class="bar w90"></span><span class="bar w40"></span></div>
+            <div class="card"><div class="img"></div><span class="bar w90"></span><span class="bar w40"></span></div>
+            <div class="card"><div class="img"></div><span class="bar w90"></span><span class="bar w40"></span></div>
+            <div class="card"><div class="img"></div></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- S3 등록한 이탈 앱 (일반 피드 구조 시뮬레이션, 내부 세로 스크롤) -->
+    <section class="screen" id="s3" data-screen="feed" tabindex="-1" aria-label="등록한 이탈 앱 시뮬레이션, 피드 화면">
+      <div class="chip-wrap" aria-hidden="true"><span class="chip">등록한 이탈 앱</span></div>
+      <div class="feed" id="feed" tabindex="0" role="region" aria-label="피드 (위아래로 스크롤)"></div>
+    </section>
+
+    <!-- S5 하차 후 평가 -->
+    <section class="screen" id="s5" data-screen="reflection" tabindex="-1" aria-labelledby="refl-title">
+      <header class="appbar">오늘 퇴근길</header>
+      <div class="content">
+        <h1 class="title" id="refl-title">오늘 이동시간,<br>원했던 방식에<br>가깝게 보냈나요?</h1>
+        <fieldset class="scale-set" id="scale">
+          <legend class="sr-only">원했던 방식에 가깝게 보낸 정도, 1점 전혀 아니에요에서 5점 매우 그래요</legend>
+          <div class="scale">
+            <label class="rate"><input type="radio" name="rating" value="1" aria-label="1점, 전혀 아니에요"><span>1</span></label>
+            <label class="rate"><input type="radio" name="rating" value="2" aria-label="2점"><span>2</span></label>
+            <label class="rate"><input type="radio" name="rating" value="3" aria-label="3점"><span>3</span></label>
+            <label class="rate"><input type="radio" name="rating" value="4" aria-label="4점"><span>4</span></label>
+            <label class="rate"><input type="radio" name="rating" value="5" aria-label="5점, 매우 그래요"><span>5</span></label>
+          </div>
+          <div class="scale-labels" aria-hidden="true"><span>전혀 아니에요</span><span>매우 그래요</span></div>
+        </fieldset>
+        <div class="divider"></div>
+        <div class="activity-box">
+          <div class="lbl">오늘 선택한 활동</div>
+          <div class="row">
+            <div class="thumb" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M6 3l15 9-15 9z"/></svg></div>
+            <strong class="activity-name"><span>해리포터</span> <span>이어보기</span></strong>
+          </div>
+        </div>
+      </div>
+      <div class="bottom">
+        <button class="btn-primary" id="done-btn" type="button" disabled>완료</button>
+      </div>
+    </section>
+
+    <!-- S4 개입 bottom sheet (S3 위에 오버레이, 응답은 두 버튼으로만) -->
+    <div class="scrim" id="scrim"></div>
+    <div class="sheet" id="sheet" role="dialog" aria-modal="true" aria-labelledby="sheet-title" aria-describedby="sheet-eyebrow" aria-hidden="true">
+      <p class="eyebrow" id="sheet-eyebrow">오늘 퇴근길 목표</p>
+      <h3 id="sheet-title">오늘 퇴근길엔<br>해리포터를 보기로 했어요.</h3>
+      <button class="btn-primary" id="return-btn" type="button">해리포터로</button>
+      <button class="btn-secondary" id="continue-btn" type="button">피드 계속 보기</button>
+    </div>
+
+    <div class="home-indicator" aria-hidden="true"></div>
+  </main>
+
+  <!-- 연구자 컨트롤러는 ?mode=researcher 일 때만 researcher.js 가 이 자리에 추가한다 -->
+</div>
+
+<template id="post-tpl">
+  <article class="post" aria-hidden="true">
+    <div class="post-head"><span class="avatar"></span><span class="ph-lines"><span class="bar w60" style="height:10px"></span><span class="bar w25"></span></span><span class="dots">•••</span></div>
+    <div class="post-img"><svg viewBox="0 0 64 48"><circle cx="50" cy="10" r="7"/><path d="M2 46L24 10l14 22 8-10 16 24z"/></svg></div>
+    <div class="post-actions">
+      <svg viewBox="0 0 24 24"><path d="M12 20s-8-5-8-11a4.500 4.500 0 0 1 8-2.800A4.500 4.500 0 0 1 20 9c0 6-8 11-8 11z"/></svg>
+      <svg viewBox="0 0 24 24"><path d="M12 4a8 8 0 1 0 3.500 15.200L20 20l-1-4.200A8 8 0 0 0 12 4z"/></svg>
+      <svg viewBox="0 0 24 24"><path d="M3 11l18-8-6 18-3-7z"/></svg>
+      <span class="spacer"></span>
+      <svg viewBox="0 0 24 24"><path d="M6 3h12v18l-6-4-6 4z"/></svg>
+    </div>
+    <div class="post-text"><span class="bar w80"></span><span class="bar w60"></span><span class="bar w40"></span></div>
+  </article>
+</template>
+
+<script src="logger.js"></script>
+<script src="app.js"></script>
+</body>
+</html>
